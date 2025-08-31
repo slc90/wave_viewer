@@ -106,45 +106,6 @@ fn show_signal_generator(ui: &mut Ui, app_state: &mut AppState) {
                         .data_source_state
                         .signal_generator_property
                         .data_type,
-                    DataGeneratorType::Sine,
-                    "正弦波",
-                )
-                .clicked()
-            {
-                info!("选择正弦波");
-            };
-            if ui
-                .selectable_value(
-                    &mut app_state
-                        .data_source_state
-                        .signal_generator_property
-                        .data_type,
-                    DataGeneratorType::Square,
-                    "方波",
-                )
-                .clicked()
-            {
-                info!("选择方波");
-            };
-            if ui
-                .selectable_value(
-                    &mut app_state
-                        .data_source_state
-                        .signal_generator_property
-                        .data_type,
-                    DataGeneratorType::Sawtooth,
-                    "锯齿波",
-                )
-                .clicked()
-            {
-                info!("选择锯齿波");
-            };
-            if ui
-                .selectable_value(
-                    &mut app_state
-                        .data_source_state
-                        .signal_generator_property
-                        .data_type,
                     DataGeneratorType::Random,
                     "随机数",
                 )
@@ -159,15 +120,6 @@ fn show_signal_generator(ui: &mut Ui, app_state: &mut AppState) {
         .signal_generator_property
         .data_type
     {
-        DataGeneratorType::Sine => {
-            ui.label("正弦波");
-        }
-        DataGeneratorType::Square => {
-            ui.label("方波");
-        }
-        DataGeneratorType::Sawtooth => {
-            ui.label("锯齿波");
-        }
         DataGeneratorType::Random => show_random_generator(ui, app_state),
     };
     if ui.button("Start").clicked() {
@@ -210,6 +162,7 @@ fn show_random_generator(ui: &mut Ui, app_state: &mut AppState) {
         )
         .text("通道数"),
     );
+    ui.separator();
     ui.add(
         egui::Slider::new(
             &mut app_state
@@ -220,6 +173,7 @@ fn show_random_generator(ui: &mut Ui, app_state: &mut AppState) {
         )
         .text("数据长度"),
     );
+    ui.separator();
     ui.add(
         egui::Slider::new(
             &mut app_state
@@ -230,4 +184,5 @@ fn show_random_generator(ui: &mut Ui, app_state: &mut AppState) {
         )
         .text("数据产生的间隔(ms)"),
     );
+    ui.separator();
 }

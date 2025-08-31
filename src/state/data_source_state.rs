@@ -81,15 +81,6 @@ impl Default for SignalGeneratorProperty {
 /// - `Random` - 随机数
 #[derive(Debug, PartialEq, Display, Clone)]
 pub enum DataGeneratorType {
-    #[strum(serialize = "正弦波")]
-    Sine,
-
-    #[strum(serialize = "方波")]
-    Square,
-
-    #[strum(serialize = "锯齿波")]
-    Sawtooth,
-
     #[strum(serialize = "随机数")]
     Random,
 }

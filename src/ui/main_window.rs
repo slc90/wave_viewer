@@ -3,6 +3,7 @@ use tokio::sync::mpsc::error::TryRecvError;
 use tracing::{debug, info};
 
 use crate::state::app_state::AppState;
+use crate::state::data_source_state::DataSourceMode;
 use crate::ui::channel_and_wave::show_channel_and_wave;
 use crate::ui::data_source::show_data_source;
 use crate::ui::play_progress::show_play_progress;
@@ -30,12 +31,14 @@ impl eframe::App for AppState {
             .show(ctx, |ui| {
                 show_data_source(ctx, ui, self);
             });
-        // 底部是播放相关选项
-        TopBottomPanel::bottom("play_progress")
-            .resizable(false)
-            .show(ctx, |ui| {
-                show_play_progress(ctx, ui);
-            });
+        // 底部是播放相关选项,只有文件才能播放
+        if self.data_source_state.current_mode == DataSourceMode::File {
+            TopBottomPanel::bottom("play_progress")
+                .resizable(false)
+                .show(ctx, |ui| {
+                    show_play_progress(ctx, ui);
+                });
+        }
         // 中间是画图区域
         CentralPanel::default().show(ctx, |ui| {
             show_channel_and_wave(ctx, ui);
