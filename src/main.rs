@@ -47,7 +47,7 @@ fn main() -> eframe::Result {
         native_options,
         Box::new(|cc| {
             add_font(&cc.egui_ctx);
-            Ok(Box::new(AppState))
+            Ok(Box::new(AppState::default()))
         }),
     );
     //把后台线程都关掉

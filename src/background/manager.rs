@@ -13,7 +13,7 @@ pub async fn background_task_dispatcher() {
     loop {
         match RECEIVE_UI_MESSAGE.get_mut().try_recv() {
             Ok(command) => {
-                debug!("Ui command:{command:?}");
+                debug!("Ui command:{command:#?}");
                 //根据Ui的消息作相应处理
                 let _ = SEND_TO_UI.get().send(BackgroundResult::TestResult).await;
             }

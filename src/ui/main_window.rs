@@ -1,14 +1,16 @@
-use egui::CentralPanel;
+use egui::{CentralPanel, TopBottomPanel};
 use tokio::sync::mpsc::error::TryRecvError;
 use tracing::{debug, info};
 
 use crate::state::app_state::AppState;
-use crate::state::ui_command::UiCommand;
-use crate::ui::ui_mspc::{RECEIVE_BACKGROUND_MESSAGE, send_to_background};
+use crate::ui::channel_and_wave::show_channel_and_wave;
+use crate::ui::data_source::show_data_source;
+use crate::ui::play_progress::show_play_progress;
+use crate::ui::ui_mspc::RECEIVE_BACKGROUND_MESSAGE;
 
 impl eframe::App for AppState {
     /// 每帧刷新时自动调用
-    fn update(&mut self, _ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         //每次重绘Ui前接收一下后台线程传过来的消息
         match RECEIVE_BACKGROUND_MESSAGE.get_mut().try_recv() {
             Ok(result) => {
@@ -22,10 +24,21 @@ impl eframe::App for AppState {
                 TryRecvError::Disconnected => panic!("未创建和后台线程的mpsc"),
             },
         }
-        CentralPanel::default().show(_ctx, |ui| {
-            if ui.button("点击向后台发送命令").clicked() {
-                send_to_background(UiCommand::TestCommand);
-            }
+        // 顶部选择数据源
+        TopBottomPanel::top("data_source_mode")
+            .resizable(false)
+            .show(ctx, |ui| {
+                show_data_source(ctx, ui, self);
+            });
+        // 底部是播放相关选项
+        TopBottomPanel::bottom("play_progress")
+            .resizable(false)
+            .show(ctx, |ui| {
+                show_play_progress(ctx, ui);
+            });
+        // 中间是画图区域
+        CentralPanel::default().show(ctx, |ui| {
+            show_channel_and_wave(ctx, ui);
         });
     }
 
