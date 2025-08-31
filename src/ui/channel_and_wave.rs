@@ -44,7 +44,7 @@ pub fn show_channel_and_wave(ctx: &Context, ui: &mut Ui) {
                 ));
                 // 画波形
                 let points: PlotPoints = (0..1000).map(|j| [j as f64 * 0.001, i as f64]).collect();
-                let line = Line::new(channel_name, points).allow_hover(false);
+                let line = Line::new(channel_name, points);
                 plot_ui.line(line);
                 // 手动画x轴
                 let x_axis_points: PlotPoints =

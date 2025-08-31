@@ -1,3 +1,6 @@
+// 关闭release版的控制台
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 pub mod background;
 pub mod logger;
 pub mod state;
