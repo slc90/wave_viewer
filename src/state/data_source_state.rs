@@ -57,7 +57,6 @@ pub struct SignalGeneratorProperty {
     pub data_type: DataGeneratorType,
     pub channel_number: u64,
     pub data_length: u64,
-    pub interval: u64,
 }
 
 impl Default for SignalGeneratorProperty {
@@ -66,7 +65,6 @@ impl Default for SignalGeneratorProperty {
             data_type: DataGeneratorType::Random,
             channel_number: 32,
             data_length: 1000,
-            interval: 5,
         }
     }
 }

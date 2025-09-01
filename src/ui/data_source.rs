@@ -174,15 +174,4 @@ fn show_random_generator(ui: &mut Ui, app_state: &mut AppState) {
         .text("数据长度"),
     );
     ui.separator();
-    ui.add(
-        egui::Slider::new(
-            &mut app_state
-                .data_source_state
-                .signal_generator_property
-                .interval,
-            5..=100,
-        )
-        .text("数据产生的间隔(ms)"),
-    );
-    ui.separator();
 }

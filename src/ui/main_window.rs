@@ -1,9 +1,10 @@
 use std::sync::mpsc::TryRecvError;
 
 use egui::{CentralPanel, TopBottomPanel};
-use tracing::{debug, info};
+use tracing::info;
 
 use crate::state::app_state::AppState;
+use crate::state::background_result::BackgroundResult;
 use crate::state::data_source_state::DataSourceMode;
 use crate::ui::channel_and_wave::show_channel_and_wave;
 use crate::ui::data_source::show_data_source;
@@ -16,8 +17,12 @@ impl eframe::App for AppState {
         //每次重绘Ui前接收一下后台线程传过来的消息
         match RECEIVE_BACKGROUND_MESSAGE.get_mut().try_recv() {
             Ok(result) => {
-                debug!("background result:{result:?}");
                 //根据这个结果对Ui的state作响应修改
+                match result {
+                    BackgroundResult::ChannelAndWaves(all_waves) => {
+                        self.channel_and_waves.all_waves = all_waves
+                    }
+                }
             }
             Err(e) => match e {
                 TryRecvError::Empty => {
@@ -42,7 +47,7 @@ impl eframe::App for AppState {
         }
         // 中间是画图区域
         CentralPanel::default().show(ctx, |ui| {
-            show_channel_and_wave(ctx, ui);
+            show_channel_and_wave(ctx, ui, &self.channel_and_waves);
         });
     }
 
