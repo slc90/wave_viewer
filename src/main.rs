@@ -7,33 +7,31 @@ pub mod state;
 pub mod ui;
 pub mod utils;
 
-use tokio::sync::mpsc;
-use tokio::task;
+use std::thread;
+
 use tracing::info;
 
 use crate::background::manager::{RECEIVE_UI_MESSAGE, SEND_TO_UI};
 use crate::logger::init_log;
 use crate::state::app_state::AppState;
+use crate::state::ui_command::UiCommand;
 use crate::ui::fonts::add_font;
-use crate::ui::ui_mspc::{RECEIVE_BACKGROUND_MESSAGE, SEND_TO_BACKGROUND};
+use crate::ui::ui_mspc::{RECEIVE_BACKGROUND_MESSAGE, SEND_TO_BACKGROUND, send_to_background};
 use crate::utils::constants::{WINDOW_MIN_HEIGHT, WINDOW_MIN_WIDTH};
 
 fn main() -> eframe::Result {
     let _file_logger_work_guards = init_log();
     info!("程序启动");
-    // 创建tokio runtime
-    let runtime = tokio::runtime::Runtime::new().unwrap();
-    let _runtime_guard = runtime.enter();
     // 创建两对mpsc管道,Ui和后台双向通信
-    let (send_to_ui, receive_background_message) = mpsc::channel(100);
-    let (send_to_background, receive_ui_message) = mpsc::channel(100);
-    SEND_TO_BACKGROUND.init(send_to_background);
-    RECEIVE_BACKGROUND_MESSAGE.init(receive_background_message);
-    SEND_TO_UI.init(send_to_ui);
-    RECEIVE_UI_MESSAGE.init(receive_ui_message);
+    let (_send_to_ui, _receive_background_message) = std::sync::mpsc::channel();
+    let (_send_to_background, _receive_ui_message) = std::sync::mpsc::channel();
+    SEND_TO_BACKGROUND.init(_send_to_background);
+    RECEIVE_BACKGROUND_MESSAGE.init(_receive_background_message);
+    SEND_TO_UI.init(_send_to_ui);
+    RECEIVE_UI_MESSAGE.init(_receive_ui_message);
     // 启动后台任务
-    task::spawn(async move {
-        background::manager::background_task_dispatcher().await;
+    let background_manager_handle = thread::spawn(|| {
+        background::manager::background_task_dispatcher();
     });
     // 启动UI
     let native_options = eframe::NativeOptions {
@@ -53,8 +51,9 @@ fn main() -> eframe::Result {
             Ok(Box::new(AppState::default()))
         }),
     );
-    //把后台线程都关掉
-    runtime.shutdown_background();
+    // 把后台线程停掉
+    send_to_background(UiCommand::StopBackgroundManager);
+    background_manager_handle.join().unwrap();
     //返回给操作系统的结果
     eframe_result
 }

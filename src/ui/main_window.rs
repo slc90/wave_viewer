@@ -1,5 +1,6 @@
+use std::sync::mpsc::TryRecvError;
+
 use egui::{CentralPanel, TopBottomPanel};
-use tokio::sync::mpsc::error::TryRecvError;
 use tracing::{debug, info};
 
 use crate::state::app_state::AppState;

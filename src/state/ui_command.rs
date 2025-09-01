@@ -9,6 +9,7 @@ use crate::state::data_source_state::SignalGeneratorProperty;
 ///
 #[derive(Debug)]
 pub enum UiCommand {
+    StopBackgroundManager,
     StartRandomGenerator(SignalGeneratorProperty),
     StopDataGenerator,
 }

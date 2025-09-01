@@ -55,9 +55,9 @@ impl Default for DataSourceMode {
 #[derive(Debug, PartialEq, Clone)]
 pub struct SignalGeneratorProperty {
     pub data_type: DataGeneratorType,
-    pub channel_number: i64,
-    pub data_length: i64,
-    pub interval: i64,
+    pub channel_number: u64,
+    pub data_length: u64,
+    pub interval: u64,
 }
 
 impl Default for SignalGeneratorProperty {
