@@ -1,4 +1,8 @@
-use crate::state::data_source_state::SignalGeneratorProperty;
+use std::sync::{Arc, Mutex};
+
+use crate::state::{
+    channel_and_wave_state::SingleWave, data_source_state::SignalGeneratorProperty,
+};
 
 /// Ui向后台发送的所有命令
 ///
@@ -10,6 +14,6 @@ use crate::state::data_source_state::SignalGeneratorProperty;
 #[derive(Debug)]
 pub enum UiCommand {
     StopBackgroundManager,
-    StartRandomGenerator(SignalGeneratorProperty),
+    StartRandomGenerator(SignalGeneratorProperty, Arc<Mutex<Vec<SingleWave>>>),
     StopDataGenerator,
 }

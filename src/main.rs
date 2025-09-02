@@ -16,7 +16,7 @@ use crate::logger::init_log;
 use crate::state::app_state::AppState;
 use crate::state::ui_command::UiCommand;
 use crate::ui::fonts::add_font;
-use crate::ui::ui_mspc::{RECEIVE_BACKGROUND_MESSAGE, SEND_TO_BACKGROUND, send_to_background};
+use crate::ui::ui_mpsc::{RECEIVE_BACKGROUND_MESSAGE, SEND_TO_BACKGROUND, send_to_background};
 use crate::utils::constants::{WINDOW_MIN_HEIGHT, WINDOW_MIN_WIDTH};
 
 fn main() -> eframe::Result {

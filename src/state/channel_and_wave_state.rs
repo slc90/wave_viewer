@@ -1,6 +1,8 @@
+use std::sync::{Arc, Mutex};
+
 #[derive(Default)]
 pub struct ChannelAndWaveState {
-    pub all_waves: Vec<SingleWave>,
+    pub all_waves: Arc<Mutex<Vec<SingleWave>>>,
 }
 
 /// 每条要画的波形的属性

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use egui::{Context, Ui};
 use tracing::info;
 
@@ -7,7 +9,7 @@ use crate::{
         data_source_state::{DataGeneratorType, DataSourceMode},
         ui_command::UiCommand,
     },
-    ui::ui_mspc::send_to_background,
+    ui::ui_mpsc::send_to_background,
 };
 
 /// 选择数据源显示的内容
@@ -128,6 +130,7 @@ fn show_signal_generator(ui: &mut Ui, app_state: &mut AppState) {
                 .data_source_state
                 .signal_generator_property
                 .clone(),
+            Arc::clone(&app_state.channel_and_waves.all_waves),
         ));
         info!("开始产生数据");
     }

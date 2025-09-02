@@ -4,12 +4,11 @@ use egui::{CentralPanel, TopBottomPanel};
 use tracing::info;
 
 use crate::state::app_state::AppState;
-use crate::state::background_result::BackgroundResult;
 use crate::state::data_source_state::DataSourceMode;
 use crate::ui::channel_and_wave::show_channel_and_wave;
 use crate::ui::data_source::show_data_source;
 use crate::ui::play_progress::show_play_progress;
-use crate::ui::ui_mspc::RECEIVE_BACKGROUND_MESSAGE;
+use crate::ui::ui_mpsc::RECEIVE_BACKGROUND_MESSAGE;
 
 impl eframe::App for AppState {
     /// 每帧刷新时自动调用
@@ -18,11 +17,7 @@ impl eframe::App for AppState {
         match RECEIVE_BACKGROUND_MESSAGE.get_mut().try_recv() {
             Ok(result) => {
                 //根据这个结果对Ui的state作响应修改
-                match result {
-                    BackgroundResult::ChannelAndWaves(all_waves) => {
-                        self.channel_and_waves.all_waves = all_waves
-                    }
-                }
+                match result {}
             }
             Err(e) => match e {
                 TryRecvError::Empty => {

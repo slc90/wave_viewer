@@ -1,10 +1,12 @@
+use rand::{Rng, SeedableRng, rngs::StdRng};
+use singlyton::SingletonUninit;
 use std::{
-    sync::mpsc::{Receiver, Sender, TryRecvError},
+    sync::{
+        Arc, Mutex,
+        mpsc::{Receiver, Sender, TryRecvError},
+    },
     time::Duration,
 };
-
-use rand::Rng;
-use singlyton::SingletonUninit;
 use tokio::sync::watch;
 use tracing::debug;
 
@@ -29,11 +31,15 @@ pub fn background_task_dispatcher() {
             Ok(command) => {
                 //根据Ui的消息作相应处理
                 match command {
-                    UiCommand::StartRandomGenerator(signal_generator_property) => {
+                    UiCommand::StartRandomGenerator(signal_generator_property, all_waves) => {
                         // 开一个线程一直发数据
                         // 先把停止状态取消
                         let _ = tx.send(false);
-                        tokio::spawn(generate_random_data(signal_generator_property, rx.clone()));
+                        tokio::spawn(generate_random_data(
+                            signal_generator_property,
+                            all_waves,
+                            rx.clone(),
+                        ));
                     }
                     UiCommand::StopDataGenerator => {
                         // 发送停止
@@ -58,32 +64,40 @@ pub fn background_task_dispatcher() {
 
 async fn generate_random_data(
     signal_generator_property: SignalGeneratorProperty,
+    all_waves: Arc<Mutex<Vec<SingleWave>>>,
     stop_signal: watch::Receiver<bool>,
 ) {
+    // 先创建好空结果
+    let channel_number = signal_generator_property.channel_number as usize;
+    let data_length = signal_generator_property.data_length as usize;
+    {
+        let mut locked = all_waves.lock().unwrap();
+        locked.clear();
+        for i in 0..channel_number {
+            locked.push(SingleWave {
+                channel_name: format!("CH{}", i + 1),
+                offset: i as f64 + 0.5,
+                data: (0..data_length).map(|i| [i as f64 * 0.001, 0.0]).collect(),
+            });
+        }
+    }
+    let mut rng = {
+        let mut rng = rand::rng();
+        StdRng::from_rng(&mut rng)
+    };
+    let mut idx = 0;
     loop {
         if *stop_signal.borrow() {
             debug!("收到停止信号，退出循环");
             break;
         }
-        let mut all_waves = Vec::<SingleWave>::new();
-        (0..signal_generator_property.channel_number).for_each(|i| {
-            let single_wave = SingleWave {
-                channel_name: format!("Ch{}", i + 1),
-                offset: i as f64 + 0.5,
-                data: (0..signal_generator_property.data_length)
-                    .map(|j| {
-                        let mut rng = rand::rng();
-                        let value = rng.random::<f64>() + i as f64;
-                        [j as f64 * 0.001, value]
-                    })
-                    .collect(),
-            };
-            all_waves.push(single_wave);
-        });
-        let _ = SEND_TO_UI
-            .get()
-            .send(BackgroundResult::ChannelAndWaves(all_waves));
-        // 每20ms发一次结果,固定16ms画一帧,发太快也没意义
-        tokio::time::sleep(Duration::from_millis(20)).await;
+        {
+            let mut locked = all_waves.lock().unwrap();
+            for ch in 0..channel_number {
+                locked[ch].data[idx] = [idx as f64 * 0.001, rng.random::<f64>() + ch as f64];
+            }
+        }
+        idx = (idx + 1) % data_length;
+        tokio::time::sleep(Duration::from_millis(5)).await;
     }
 }
